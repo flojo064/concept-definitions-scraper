@@ -1,25 +1,6 @@
 # Confluence Finalized Definitions Scraper
 
-A Python script that extracts **finalized concept definitions** from a Confluence HTML space export and converts them into a clean, structured **CSV** for downstream use (data catalogs, governance tools, audits, etc.).
-
-This tool is purpose-built for Confluence spaces that use **Page Status** to control content lifecycle and ensures that **only approved (“Confluence Page Finalized”) pages** are exported.
-
----
-
-## Features
-
-- ✅ Parses Confluence **HTML space exports**
-- ✅ Filters pages by **Page Status = Confluence Page Finalized**
-- ✅ Extracts clean, **plain-text definitions** (HTML removed)
-- ✅ Pulls resource links from:
-  - Definition Logic  
-  - Related Codesets  
-  - References
-- ✅ Detects and logs invalid links:
-  - Local or internal files  
-  - Broken URLs  
-  - Link text that matches the URL
-- ✅ Outputs CSV files ready for ingestion
+A Python script that extracts **finalized concept definitions** from a Confluence HTML space export and converts them into a clean, structured **CSV**
 
 ---
 
