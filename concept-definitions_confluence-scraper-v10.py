@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import argparse
 import os
 import re
 import sys
@@ -140,64 +141,85 @@ def extract_resources(html_content, page_name):
     return ";".join(formatted_links)
 
 
-directory = r"C:\Users\justin\Downloads\Confluence-space-export-191752.html\CD"
-output_file = os.path.join(os.path.expanduser("~"), "Desktop", "scraped-finalized-definitions.csv")
-invalid_file = os.path.join(os.path.expanduser("~"), "Desktop", "invalid-links.csv")
-
 FINAL_STATUS = "confluence page finalized"
 
-sys.stdout = open(output_file, "w", encoding="utf-8")
-print(
-    '"Nick Name","Name","Definition","IsDefinitionRichText","Status","Related Terms","Synonyms","Acronym","Experts","Stewards","Resources","Parent Term Name","Term Template Names"'
-)
 
-for filename in os.listdir(directory):
-    f = os.path.join(directory, filename)
+def run_scraper(directory, output_file, invalid_file):
+    global invalid_links
+    invalid_links = []
 
-    if os.path.isfile(f):
-        with open(f, "r", encoding="utf-8") as file:
-            content = file.read()
-
-        page_status = get_page_status(content)
-        if not page_status or page_status.strip().lower() != FINAL_STATUS:
-            continue
-
-        full_name_element = BeautifulSoup(content, "html.parser").find("span", id="title-text")
-        if not full_name_element:
-            continue
-
-        full_name = full_name_element.get_text().strip()
-        name = full_name.replace("Concept Definitions :", "").strip()
-
-        acronym = ""
-        m = re.search(r"\(([A-Z]+)\)", name)
-        if m:
-            acronym = m.group(1)
-
-        name = re.sub(r"\n", "", name)
-        name = re.sub(r"\.", "", name)
-        name = re.sub(r"@", "", name)
-
-        description = extract_description(content, name)
-        description = description.replace('"', '""')
-        description = re.sub(r"\n", "", description)
-        description = re.sub(r"\s+", " ", description)
-
-        resources = extract_resources(content, name)
-        resources = resources.replace('"', "")
-        resources = re.sub(r"\n", "", resources)
-        resources = re.sub(r"\s+", " ", resources)
-
-        print(
-            f'"{name}","","{description}","true","Draft","","","{acronym}","","","{resources}","","System Default;"'
+    with open(output_file, "w", encoding="utf-8") as out:
+        out.write(
+            '"Nick Name","Name","Definition","IsDefinitionRichText","Status","Related Terms","Synonyms","Acronym","Experts","Stewards","Resources","Parent Term Name","Term Template Names"\n'
         )
 
-sys.stdout.close()
+        for filename in os.listdir(directory):
+            f = os.path.join(directory, filename)
 
-sys.stdout = open(invalid_file, "w", encoding="utf-8")
-print('"Page Name","Link Text","URL","Location","Issue"')
-for pagename, linkText, link, location, issue in invalid_links:
-    print(f'"{pagename}","{linkText}","{link}","{location}","{issue}"')
+            if os.path.isfile(f):
+                with open(f, "r", encoding="utf-8") as file:
+                    content = file.read()
 
-sys.stdout.close()
-sys.stdout = sys.__stdout__
+                page_status = get_page_status(content)
+                if not page_status or page_status.strip().lower() != FINAL_STATUS:
+                    continue
+
+                full_name_element = BeautifulSoup(content, "html.parser").find("span", id="title-text")
+                if not full_name_element:
+                    continue
+
+                full_name = full_name_element.get_text().strip()
+                name = full_name.replace("Concept Definitions :", "").strip()
+
+                acronym = ""
+                m = re.search(r"\(([A-Z]+)\)", name)
+                if m:
+                    acronym = m.group(1)
+
+                name = re.sub(r"\n", "", name)
+                name = re.sub(r"\.", "", name)
+                name = re.sub(r"@", "", name)
+
+                description = extract_description(content, name)
+                description = description.replace('"', '""')
+                description = re.sub(r"\n", "", description)
+                description = re.sub(r"\s+", " ", description)
+
+                resources = extract_resources(content, name)
+                resources = resources.replace('"', "")
+                resources = re.sub(r"\n", "", resources)
+                resources = re.sub(r"\s+", " ", resources)
+
+                out.write(
+                    f'"{name}","","{description}","true","Draft","","","{acronym}","","","{resources}","","System Default;"\n'
+                )
+
+    with open(invalid_file, "w", encoding="utf-8") as out:
+        out.write('"Page Name","Link Text","URL","Location","Issue"\n')
+        for pagename, linkText, link, location, issue in invalid_links:
+            out.write(f'"{pagename}","{linkText}","{link}","{location}","{issue}"\n')
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Scrape Confluence export HTML into CSV.")
+    parser.add_argument(
+        "--input",
+        default=r"C:\Users\justin\Downloads\Confluence-space-export-220712.html\CD",
+        help="Folder containing Confluence HTML files.",
+    )
+    parser.add_argument(
+        "--output",
+        default=os.path.join(os.path.expanduser("~"), "Desktop", "scraped-finalized-definitionsv2.csv"),
+        help="Output CSV file path.",
+    )
+    parser.add_argument(
+        "--invalid",
+        default=os.path.join(os.path.expanduser("~"), "Desktop", "invalid-links.csv"),
+        help="Invalid links CSV file path.",
+    )
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    run_scraper(args.input, args.output, args.invalid)

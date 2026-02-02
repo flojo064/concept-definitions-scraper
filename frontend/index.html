@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Concept Definitions Scraper</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <div>
+          <h1>Concept Definitions Scraper</h1>
+          <p>Run the Confluence export scraper and generate CSV outputs in one click.</p>
+        </div>
+        <div class="status-pill" id="statusPill">Idle</div>
+      </header>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Inputs</h2>
+          <button class="button secondary" id="loadDefaults">Load Defaults</button>
+        </div>
+
+        <form id="scrapeForm">
+          <label class="field">
+            <span>Input Folder</span>
+            <div class="field-row">
+              <input type="text" id="inputDir" placeholder="C:\\path\\to\\Confluence-export\\CD" />
+              <button class="button secondary" type="button" id="pickInput">Browse</button>
+            </div>
+          </label>
+          <label class="field">
+            <span>Output CSV</span>
+            <div class="field-row">
+              <input type="text" id="outputFile" placeholder="C:\\path\\to\\scraped-finalized-definitionsv2.csv" />
+              <button class="button secondary" type="button" id="pickOutput">Save As</button>
+            </div>
+          </label>
+          <label class="field">
+            <span>Invalid Links CSV</span>
+            <div class="field-row">
+              <input type="text" id="invalidFile" placeholder="C:\\path\\to\\invalid-links.csv" />
+              <button class="button secondary" type="button" id="pickInvalid">Save As</button>
+            </div>
+          </label>
+
+          <div class="actions">
+            <button class="button primary" type="submit">Run Scraper</button>
+            <button class="button ghost" type="button" id="resetForm">Reset</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Results</h2>
+        <div class="result" id="resultBox">
+          <p>No runs yet.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Recent Runs</h2>
+          <button class="button ghost" type="button" id="refreshHistory">Refresh</button>
+        </div>
+        <div class="history" id="historyBox">
+          <p>No history yet.</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
